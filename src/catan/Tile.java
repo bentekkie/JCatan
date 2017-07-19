@@ -31,14 +31,14 @@ public class Tile extends ScreenElement{
 	@Override
 	public void click(int playerID) {
 		// TODO Auto-generated method stub
-		System.out.println("Tile clicked");
+		System.out.println(this + " tile clicked");
 		
 	}
 
 	@Override
 	public int priority() {
 		// TODO Auto-generated method stub
-		return 2;
+		return 1;
 	}
 
 }

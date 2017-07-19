@@ -15,8 +15,7 @@ public class Board {
 	}
 
 	public Board(int sideLength) {
-		sideLength--;
-		this.totalTiles = 3*sideLength*sideLength + 3*sideLength+1;
+		this.totalTiles = 3*sideLength*(sideLength-1)+1;
 		this.sideLength = sideLength+1;
 		initTiles();
 		initNodes();

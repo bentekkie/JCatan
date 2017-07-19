@@ -7,7 +7,7 @@ public class Main {
 
 	public static int dim = 1000;
 	public static void main(String[] args){
-		Board b = new Board(3);
+		Board b = new Board(5);
 		//debugPrint(b);
 		JFrame f = new JFrame("Test");
 		GamePanel gp = new GamePanel(b,f);

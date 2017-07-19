@@ -60,13 +60,15 @@ public class GamePanel extends JPanel implements MouseListener {
 		int offset = 0;
 		for(int x = 0; x < b.tiles.length; x++){
 			for(int y = 0; y < b.tiles[x].length; y++){
-				if(b.tiles[x][y].getType() != null) {
+				if(b.tiles[x][y].getType() != Terrain.Ocean) {
 					double xVal = y*hexWidth+ offset- (b.getSideLength()+1)*hexWidth/2 +margin/2;
 					double yVal = x*r*3/2+r - r*3/2 + margin/2;
 					b.tiles[x][y].setArea(drawHex(g2,xVal,yVal,b.tiles[x][y].getType().getColor()));
 					g2.setColor(Color.BLACK);
 					g2.drawString(Integer.toString(b.tiles[x][y].id), (int)Math.round(xVal),(int)Math.round(yVal));
-					
+					if(!elements.contains(b.tiles[x][y])) {
+						elements.add(b.tiles[x][y]);
+					}	
 				}
 			}
 			offset += hexWidth/2;
