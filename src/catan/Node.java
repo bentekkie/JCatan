@@ -1,10 +1,11 @@
 package catan;
 
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Node {
+public class Node extends ScreenElement{
 	private static int ID = 0;
 	private static Map<Integer,Node> allNodes = new HashMap<Integer,Node>();
 	public int id;
@@ -13,6 +14,7 @@ public class Node {
 	private Tile[] tiles;
 	public int x;
 	public int y;
+	public Point2D.Double realCoord;
 	public double realX;
 	public double realY;
 	public int orrientation;
@@ -50,6 +52,19 @@ public class Node {
 	@Override
 	public String toString() {
 		return Integer.toString(x) + "," + Integer.toString(y) + "," + Integer.toString(orrientation);
+	}
+
+	@Override
+	public void click(int playerID) {
+		// TODO Auto-generated method stub
+		System.out.println(this + " node clicked");
+		
+	}
+
+	@Override
+	public int priority() {
+		// TODO Auto-generated method stub
+		return 3;
 	}
 
 }

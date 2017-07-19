@@ -1,18 +1,21 @@
 package catan;
 
-import javax.swing.JFrame;
+import java.awt.Color;
 
+import javax.swing.JFrame;
 public class Main {
 
+	public static int dim = 1000;
 	public static void main(String[] args){
 		Board b = new Board(3);
-		debugPrint(b);
+		//debugPrint(b);
 		JFrame f = new JFrame("Test");
 		GamePanel gp = new GamePanel(b,f);
-		f.setSize(500, 500);
+		f.setSize(dim, dim);
 		f.add(gp);
+		f.setBackground(Color.BLUE);
 		gp.setVisible(true);
-		gp.setSize(500,500);
+		gp.setSize(dim,dim);
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		f.setVisible(true);
 	}
