@@ -1,9 +1,18 @@
 package catan;
 
+import catan.Board.Node;
+import catan.Board.Player;
+import catan.Board.Tile;
+
 public class Settlement extends Occupant {
 
-	public Settlement(int playerID, Node location) {
-		super(playerID, GamePieceType.Settlement, location);
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7072394377387759219L;
+
+	public Settlement(Player player, Node location) {
+		super(player, GamePieceType.Settlement, location);
 	}
 
 	@Override

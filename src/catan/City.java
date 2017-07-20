@@ -1,9 +1,18 @@
 package catan;
 
+import catan.Board.Node;
+import catan.Board.Player;
+import catan.Board.Tile;
+
 public class City extends Occupant {
 
-	public City(int playerID, Node location) {
-		super(playerID, GamePieceType.City, location);
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6600597686563994529L;
+
+	public City(Player player, Node location) {
+		super(player, GamePieceType.City, location);
 	}
 
 	@Override

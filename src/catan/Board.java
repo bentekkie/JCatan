@@ -1,10 +1,20 @@
 package catan;
 
+import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.geom.Point2D;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class Board {
+public class Board implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	Tile[][] tiles;
 	Node[][] nodes;
 	Tile ocean;
@@ -16,10 +26,11 @@ public class Board {
 
 	public Board(int sideLength) {
 		this.totalTiles = 3*sideLength*(sideLength-1)+1;
-		this.sideLength = sideLength+1;
+		this.sideLength = sideLength;
 		initTiles();
 		initNodes();
 		initEdges();
+		initListeners();
 	}
 	
 	private void initTiles(){
@@ -110,5 +121,213 @@ public class Board {
 			}
 		}
 	}
+	
+	private void initListeners(){
+		for(Node n:allNodes.values()){
+			n.addActionListener(new SerializableActionListener() {
+				private static final long serialVersionUID = 6293653573069804422L;
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					if(n.getOccupant() != null && n.getOccupant().getPlayer().getId() == Main.playerID){
+						n.setOccupant(null);
+					}else{
+						n.setOccupant(new City(getPlayer(Main.playerID), n));
+					}
+				}
+			});
+		}
+		for(Edge n:allEdges.values()){
+			n.addActionListener(new SerializableActionListener() {
+				private static final long serialVersionUID = -878740968296562926L;
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					if(n.getRoad() != null && n.getRoad().getPlayer().getId() == Main.playerID){
+						n.setRoad(null);
+					}else{
+						n.setRoad(new GamePiece(getPlayer(Main.playerID),GamePieceType.Road));
+					}
+				}
+			});
+		}
+	}
+	private Map<Integer,Node> allNodes = new HashMap<Integer,Node>();
+	private int nodeMaxID = 0;
+	public Node getNode(int id){
+		return allNodes.get(id);
+	}
+	public class Node extends ScreenElement{
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -1377377934634091655L;
+		public int id;
+		private Occupant occ;
+		private ArrayList<Edge> edges;
+		private Tile[] tiles;
+		public int x;
+		public int y;
+		public Point2D.Double realCoord;
+		public double realX;
+		public double realY;
+		public int orrientation;
+		
+		public Node(int x, int y, int orrientation, Tile... tiles) {
+			this.id = nodeMaxID++;
+			allNodes.put(this.id, this);
+			this.edges = new ArrayList<Edge>();
+			this.tiles = tiles;
+			this.x = x;
+			this.y = y;
+			this.orrientation = orrientation;
+		}
+		public Occupant getOccupant() {
+			return occ;
+		}
+		public void setOccupant(Occupant occ) {
+			this.occ = occ;
+		}
+		public void addEdge(Edge edge){
+			this.edges.add(edge);
+		}
+		public Edge[] getEdges() {
+			Edge[] tmp = new Edge[edges.size()];
+			edges.toArray(tmp);
+			return tmp;
+		}
+		public Tile[] getTiles() {
+			return tiles;
+		}
+		@Override
+		public String toString() {
+			return Integer.toString(id) +":"+ Integer.toString(x) + "," + Integer.toString(y) + "," + ((orrientation == 0)?"top":"bot");
+		}
+
+		@Override
+		public int priority() {
+			// TODO Auto-generated method stub
+			return 3;
+		}
+
+	}
+	
+	private Map<Integer,Edge> allEdges = new HashMap<Integer,Edge>();
+	private int edgeMaxID = 0;
+	public class Edge extends ScreenElement{
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -4942208033759747758L;
+		public int id;
+		private GamePiece road;
+		private Node[] nodes;
+		public Edge(Node... nodes) {
+			this.id = edgeMaxID++;
+			allEdges.put(id, this);
+			for(Node n: nodes){
+				n.addEdge(this);
+			}
+			this.nodes = nodes;
+		}
+		public GamePiece getRoad() {
+			return road;
+		}
+		public void setRoad(GamePiece road) {
+			this.road = road;
+		}
+		public Node traverse(Node start){
+			return (nodes[0] == start)? nodes[1]:nodes[0];
+		}
+		
+		public Tile[] getTiles(){
+			ArrayList<Tile> tmp = new ArrayList<Tile>();
+			for(Tile t: nodes[0].getTiles()){
+				for(Tile t1: nodes[1].getTiles()){
+					if(t == t1) tmp.add(t1);
+				}
+			}
+			Tile [] tmpArr = new Tile[tmp.size()];
+			tmp.toArray(tmpArr);
+			return tmpArr;
+		}
+		@Override
+		public int priority() {
+			// TODO Auto-generated method stub
+			return 2;
+		}
+		@Override
+		public String toString() {
+			// TODO Auto-generated method stub
+			return Integer.toString(id) +":"+ nodes[0] + "<-->" + nodes[1];
+		}
+	}
+
+	public Tile getTile(int id){
+		return allTiles.get(id);
+	}
+	
+
+	private Map<Integer,Tile> allTiles = new HashMap<Integer,Tile>();
+	private int tileMaxID = 0;
+	public class Tile extends ScreenElement{
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -7131370096924389993L;
+		public int id;
+		private Terrain type;
+
+		public Tile(Terrain type) {
+			this.id = tileMaxID++;
+			allTiles.put(this.id, this);
+			this.type = type;
+		}
+		public Terrain getType() {
+			return type;
+		}
+		
+		@Override
+		public String toString() {
+			// TODO Auto-generated method stub
+			return Integer.toString(id) +":"+ type.toString();
+		}
+
+		@Override
+		public int priority() {
+			// TODO Auto-generated method stub
+			return 1;
+		}
+
+	}
+	private Map<Integer,Player> allPlayers = new HashMap<Integer,Player>();
+	public void createPlayer(int id,Color c){
+		allPlayers.put(id, new Player(id,c));
+	}
+	
+	public Player getPlayer(int id){
+		return allPlayers.get(id);
+	}
+	public class Player implements Serializable {
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 130542026828487035L;
+		private Color c;
+		private int id;
+		private Player(int id, Color c) {
+			this.c = c;
+			this.id = id;
+		}
+		public Color getColor() {
+			return c;
+		}
+		public int getId() {
+			return id;
+		}
+
+	}
+
 
 }

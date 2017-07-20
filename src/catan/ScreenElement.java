@@ -1,8 +1,17 @@
 package catan;
 
 import java.awt.Shape;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.function.Consumer;
 
-public abstract class ScreenElement {
+public abstract class ScreenElement implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1154523057914430260L;
 	private Shape area;
 
 	/**
@@ -18,7 +27,15 @@ public abstract class ScreenElement {
 	public void setArea(Shape area) {
 		this.area = area;
 	}
-	
-	public abstract void click(int playerID);
+	private ArrayList<SerializableActionListener> listeners = new ArrayList<SerializableActionListener>();
+	public void addActionListener(SerializableActionListener l){
+		listeners.add(l);
+	}
+	public void click(int playerID){
+		for(ActionListener l: listeners){
+			l.actionPerformed(new ActionEvent(this,ActionEvent.ACTION_PERFORMED, "click",playerID));
+		}
+		System.out.println("click" + this);
+	}
 	public abstract int priority();
 }

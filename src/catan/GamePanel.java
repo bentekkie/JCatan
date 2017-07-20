@@ -2,6 +2,9 @@ package catan;
 
 
 import java.awt.BasicStroke;
+
+import catan.Board.*;
+
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -12,7 +15,7 @@ import java.awt.event.MouseListener;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
-import java.util.PriorityQueue;
+import java.util.ArrayList;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -26,17 +29,27 @@ public class GamePanel extends JPanel implements MouseListener {
 	private double r;
 	private static final long serialVersionUID = 5722903008506660750L;
 	private Board b;
+	public void setBoard(Board b) {
+		this.b = b;
+		elements = new ArrayList<ScreenElement>();
+		this.repaint();
+	}
+
+	public Board getBoard() {
+		return b;
+	}
 	private JFrame f;
 	private double margin;
-	private PriorityQueue<ScreenElement> elements;
+	private ArrayList<ScreenElement> elements;
 	public GamePanel(Board b, JFrame f) {
 		this.b = b;
 		this.f = f;
 		this.setOpaque(true);
-		elements = new PriorityQueue<ScreenElement>(10,(e1,e2) ->  e2.priority() - e1.priority());
+		elements = new ArrayList<ScreenElement>();
 		setBackground(Color.BLUE);
 		addMouseListener(this);
 	}
+	
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
@@ -77,11 +90,15 @@ public class GamePanel extends JPanel implements MouseListener {
 	
 	private void drawNodes(Graphics2D g2){
 		int offset = 0;
-		g2.setColor(Color.BLACK);
 		double nodeDiameter = (r/7);
 		for(int i = 0; i < b.nodes.length; i++){
 			for(int j = 0; j < b.nodes[i].length; j++){
 				if(b.nodes[i][j] != null){
+					if(b.nodes[i][j].getOccupant() != null){
+						g2.setColor(b.nodes[i][j].getOccupant().getPlayer().getColor());
+					}else{
+						g2.setColor(Color.BLACK);
+					}
 					double yVal = b.nodes[i][j].x*r*3/2+r - r*3/2 + ((b.nodes[i][j].orrientation == 0)?-r:r)+margin/2;
 					double xVal = b.nodes[i][j].y*hexWidth+ offset- (b.getSideLength()+1)*hexWidth/2+margin/2;
 					Ellipse2D p = new Ellipse2D.Double(xVal - nodeDiameter/2, yVal - nodeDiameter/2, nodeDiameter, nodeDiameter);
@@ -103,15 +120,22 @@ public class GamePanel extends JPanel implements MouseListener {
 		int d = b.nodes.length/2;
 		Stroke s = new BasicStroke((int)(r/14));
 		g2.setStroke(s);
-		g2.setColor(Color.BLACK);
 		for(int x = 1; x < d; x++){
 			for(int y = 0; y < d-1; y++){
 				if(b.nodes[2*x][y] != null){
 					for(Edge e:b.nodes[2*x][y].getEdges()){
+						
 						Node other = e.traverse(b.nodes[2*x][y]);
 						Line2D p = new Line2D.Double(b.nodes[2*x][y].realCoord, other.realCoord);
+						
+						;
+						if(e.getRoad() != null){
+							g2.setColor(e.getRoad().getPlayer().getColor());
+						}else{
+							g2.setColor(Color.BLACK);
+						}
 						g2.draw(p);
-						e.setArea(s.createStrokedShape(p));
+						e.setArea((new BasicStroke((int)(r/7))).createStrokedShape(p));
 						if(!elements.contains(e)) {
 							elements.add(e);
 						}
@@ -136,8 +160,9 @@ public class GamePanel extends JPanel implements MouseListener {
 		// TODO Auto-generated method stub
 		elements.stream()
 				.filter(e1 -> e1.getArea().contains(e.getX(), e.getY()))
-				.findFirst()
+				.max((e1,e2) -> e1.priority() - e2.priority())
 				.ifPresent(e1 -> e1.click(0));
+		this.repaint();
 
 	}
 	@Override
